@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice Assistant</title>
     <style>
-
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -112,15 +111,45 @@
 
         // Initialize SpeechSynthesis
         let isSpeaking = false;
+        let maleVoice = null;
+
+        // Function to get available voices and select a male voice
+        function getMaleVoice() {
+            const voices = window.speechSynthesis.getVoices();
+            
+            // Filter for male voices, prefer English or Bangla if possible
+            maleVoice = voices.find(voice => 
+                (voice.name.toLowerCase().includes('male') || voice.name.toLowerCase().includes('man')) &&
+                (voice.lang.includes('en') || voice.lang.includes('bn'))
+            );
+
+            // If a specific male voice is not found, fall back to the first available male voice
+            if (!maleVoice) {
+                maleVoice = voices.find(voice => voice.gender === 'male') || voices[0];
+            }
+        }
+
+        // Fetch voices when they are loaded
+        window.speechSynthesis.onvoiceschanged = () => {
+            getMaleVoice();
+        };
 
         // Predefined responses
         const responses = {
-            'hi': 'Hi, my name is Md Fahim Sarker.',
-            'hello': 'Hello, I am Md Fahim Sarker. How can I assist you today?',
-            'what is your name': 'My name is Md Fahim Sarker.',
-            'Fahim': 'Yes Sir',
-            'fahim': 'Yes Sir',
-            'how are you': 'I am just a program, but thanks for asking!'
+            en: {
+                'hi': 'Hi, my name is Md Fahim Sarker.',
+                'hello': 'Hello, I am Md Fahim Sarker. How can I assist you today?',
+                'what is your name': 'My name is Md Fahim Sarker.',
+                'Fahim': 'Yes Sir',
+                'fahim': 'Yes Sir',
+                'how are you': 'I am just a program, but thanks for asking!'
+            },
+            bn: {
+                '': ',        ?',
+                '  ': '    ',
+                '': ' ',
+                ' ': '    ,     !'
+            }
         };
 
         // Start listening when the button is clicked
@@ -131,35 +160,42 @@
         // Handle the recognition result
         recognition.onresult = function(event) {
             const voiceInput = event.results[0][0].transcript.toLowerCase();
-            
-            processQuery(voiceInput);
+            const lang = detectLanguage(voiceInput);
+            processQuery(voiceInput, lang);
         };
 
         // Handle text input submission
         submitText.addEventListener('click', () => {
             const text = textInput.value.toLowerCase();
             if (text) {
-                processQuery(text);
+                const lang = detectLanguage(text);
+                processQuery(text, lang);
                 textInput.value = ''; // Clear the text input after submission
             }
         });
 
+        // Function to detect language (Bangla or English)
+        function detectLanguage(text) {
+            const banglaChars = /[\u0980-\u09FF]/;
+            return banglaChars.test(text) ? 'bn' : 'en';
+        }
+
         // Function to process the query with predefined responses, Gemini AI, or Wikipedia
-        async function processQuery(query) {
-            if (responses[query]) {
+        async function processQuery(query, lang) {
+            if (responses[lang][query]) {
                 // If there is a predefined response
-                const response = responses[query];
+                const response = responses[lang][query];
                 const formattedResponse = formatResponse(response);
-                speak(formattedResponse);
+                speak(formattedResponse, lang);
             } else {
-                const wikiSummary = await getWikipediaSummary(query);
+                const wikiSummary = await getWikipediaSummary(query, lang);
                 
                 if (!wikiSummary) {
                     // If no Wikipedia summary, use Gemini AI
-                    await getGeminiAIResponse(query);
+                    await getGeminiAIResponse(query, lang);
                 } else {
                     const formattedSummary = formatResponse(wikiSummary);
-                    speak(formattedSummary);
+                    speak(formattedSummary, lang);
                 }
             }
         }
@@ -173,7 +209,7 @@
         }
 
         // Function to query Gemini AI API
-        async function getGeminiAIResponse(query) {
+        async function getGeminiAIResponse(query, lang) {
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
             const requestData = {
                 contents: [
@@ -199,20 +235,21 @@
                 if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
                     const assistantResponse = data.candidates[0].content.parts[0].text;
                     const formattedResponse = formatResponse(assistantResponse);
-           
-                    speak(formattedResponse);
+                    speak(formattedResponse, lang);
                 } else {
-                    speak("There seems to be a problem please contact Developer Md Fahim Sarkar.");
+                    speak("There seems to be a problem, please contact The Developer Md Fahim Sarkar.", lang);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                speak("There seems to be a problem please contact The Developer Md Fahim Sarkar.");
+                speak("There seems to be a problem, please contact The Developer Md Fahim Sarkar.", lang);
             }
         }
 
         // Function to query Wikipedia API
-        async function getWikipediaSummary(query) {
-            const apiUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`;
+        async function getWikipediaSummary(query, lang) {
+            const apiUrl = lang === 'bn'
+                ? `https://bn.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`
+                : `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`;
 
             try {
                 const response = await fetch(apiUrl);
@@ -229,13 +266,18 @@
             }
         }
 
-        // Speech synthesis function to read out the response
-        function speak(text) {
+        // Function to speak the text with the selected male voice
+        function speak(text, lang) {
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US'; // Set language
+            utterance.lang = lang === 'bn' ? 'bn-BD' : 'en-US'; // Set language
             utterance.pitch = 1;      // Set pitch
             utterance.rate = 1;       // Set rate (speed)
             utterance.volume = 1;     // Set volume
+            
+            // Set the male voice
+            if (maleVoice) {
+                utterance.voice = maleVoice;
+            }
 
             utterance.onend = function() {
                 // Restart listening after speech synthesis ends
