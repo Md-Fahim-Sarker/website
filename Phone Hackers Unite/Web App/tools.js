@@ -33,13 +33,13 @@ function urlshorter() {
 }
 
 async function getIpInfo(ip) {
-  const apiUrl = `http://ip-api.com/json/${ip}`;
+  const apiUrl = `https://ipapi.co/${ip}/json/`;
   try {
     const response = await fetch(apiUrl);
     return await response.json();
   } catch (error) {
     console.error("Error fetching IP info:", error);
-    displayError("Failed to fetch IP info.");
+    displayError("Failed to Get IP info.");
   }
 }
 
@@ -47,19 +47,40 @@ function fetchIpInfo() {
   const ip = document.getElementById('input-text').value;
   if (ip) {
     getIpInfo(ip).then(ipInfo => {
-      if (ipInfo && ipInfo.status === "success") {
+      if (ipInfo && ipInfo.network) {
         const reply = `🔎IP Information:<br>` +
-                      `Country: ${ipInfo.country}<br>` +
-                      `Region: ${ipInfo.regionName}<br>` +
-                      `City: ${ipInfo.city}<br>` +
-                      `ZIP: ${ipInfo.zip}<br>` +
-                      `Lat: ${ipInfo.lat}<br>` +
-                      `Lon: ${ipInfo.lon}<br>` +
-                      `ISP: ${ipInfo.isp}<br>` +
-                      `Org: ${ipInfo.org}`;
+              `IP: ${ipInfo.ip}<br>` +
+              `Network: ${ipInfo.network}<br>` +
+              `Version: ${ipInfo.version}<br>` +
+              `City: ${ipInfo.city}<br>` +
+              `Region: ${ipInfo.region}<br>` +
+              `Region Code: ${ipInfo.region_code}<br>` +
+              `Country: ${ipInfo.country}<br>` +
+              `Country Name: ${ipInfo.country_name}<br>` +
+              `Country Code: ${ipInfo.country_code}<br>` +
+              `Country Code ISO3: ${ipInfo.country_code_iso3}<br>` +
+              `Country Capital: ${ipInfo.country_capital}<br>` +
+              `Country TLD: ${ipInfo.country_tld}<br>` +
+              `Continent Code: ${ipInfo.continent_code}<br>` +
+              `In EU: ${ipInfo.in_eu}<br>` +
+              `Postal: ${ipInfo.postal}<br>` +
+              `Latitude: ${ipInfo.latitude}<br>` +
+              `Longitude: ${ipInfo.longitude}<br>` +
+              `Timezone: ${ipInfo.timezone}<br>` +
+              `UTC Offset: ${ipInfo.utc_offset}<br>` +
+              `Country Calling Code: ${ipInfo.country_calling_code}<br>` +
+              `Currency: ${ipInfo.currency}<br>` +
+              `Currency Name: ${ipInfo.currency_name}<br>` +
+              `Languages: ${ipInfo.languages}<br>` +
+              `Country Area: ${ipInfo.country_area}<br>` +
+              `Country Population: ${ipInfo.country_population}<br>` +
+              `ASN: ${ipInfo.asn}<br>` +
+              `Org: ${ipInfo.org}`;
         resultDiv.innerHTML = reply;
         resultDiv.className = 'message success';
         resultDiv.style.display = 'block';
+      } else if (ipInfo.error) {
+     displayError(ipInfo.reason);
       } else {
         displayError("Invalid IP address or IP information not found.");
       }
