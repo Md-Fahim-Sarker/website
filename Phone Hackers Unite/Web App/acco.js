@@ -93,7 +93,7 @@ async function fetchInfo(event) {
 
     // Function to shorten URL using TinyURL API
     function shortenUrl(url) {
-        const apiUrl = 'http://tinyurl.com/api-create.php?url=' + encodeURIComponent(url);
+        const apiUrl = 'https://tinyurl.com/api-create.php?url=' + encodeURIComponent(url);
         return fetch(apiUrl).then(response => response.text());
     }
 
@@ -134,7 +134,7 @@ function urlshorter(phishingLinkText, urlInput) {
 }
 
 function shortenUrl(urlInput, phishingLinkText) {
-  const apiUrl = 'http://tinyurl.com/api-create.php?url=' + encodeURIComponent(urlInput);
+  const apiUrl = 'https://tinyurl.com/api-create.php?url=' + encodeURIComponent(urlInput);
 
   fetch(apiUrl)
     .then(response => response.text())

@@ -33,7 +33,7 @@ function urlshorter() {
 }
 
 async function getIpInfo(ip) {
-  const apiUrl = `https://ip-api.com/json/${ip}`;
+  const apiUrl = `http://ip-api.com/json/${ip}`;
   try {
     const response = await fetch(apiUrl);
     return await response.json();
