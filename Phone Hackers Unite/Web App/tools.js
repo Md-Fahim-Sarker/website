@@ -33,7 +33,7 @@ function urlshorter() {
 }
 
 async function getIpInfo(ip) {
-  const apiUrl = `http://ip-api.com/json/${ip}`;
+  const apiUrl = `https://ip-api.com/json/${ip}`;
   try {
     const response = await fetch(apiUrl);
     return await response.json();
@@ -70,7 +70,7 @@ function fetchIpInfo() {
 }
 
 function shortenUrl(url) {
-  const apiUrl = 'http://tinyurl.com/api-create.php?url=' + encodeURIComponent(url);
+  const apiUrl = 'https://tinyurl.com/api-create.php?url=' + encodeURIComponent(url);
   
   fetch(apiUrl)
     .then(response => response.text())
