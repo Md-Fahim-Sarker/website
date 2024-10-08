@@ -9,6 +9,10 @@ function gotomychatid() {
 window.location.href = 'general.html?general=mychatid&id=' + chatid;
 }
 
+function gotoacchack() {
+window.location.href = 'account.html?id=' + chatid;
+}
+
 function gotodevyoutub() {
 window.location.href = 'general.html?general=devyoutub&id=' + chatid;
 }
