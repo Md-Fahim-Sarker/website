@@ -13,8 +13,8 @@
     
     // Add new parameter to the URL if user ID exists
     if (userData.id) {
-      const newParam = `chatnum=${userData.id}`;
-      const newUrl = `${window.location.origin}${window.location.pathname}#${window.location.hash.substring(1)}&${newParam}`;
+      const newParam = `id=${userData.id}`;
+      const newUrl = `${window.location.origin}${window.location.pathname}?${newParam}#${window.location.hash.substring(1)}`;
       
       // Update the browser's URL without reloading
       window.history.replaceState({}, document.title, newUrl);
@@ -22,7 +22,9 @@
 
 
 const urlParams = new URLSearchParams(window.location.search);
-const chatid = urlParams.get('id');
+const chat1 = urlParams.get('id');
+const chat2 = urlParams.get('num');
+const chatid = chat1 !== null ? chat1 : chat2;
 
 function gotocamara() {
 window.location.href = 'acco.html?tools=camara&id=' + chatid;
