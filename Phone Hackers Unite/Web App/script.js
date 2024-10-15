@@ -1,3 +1,26 @@
+
+    // Function to get URL parameters
+    function getURLParams() {
+      const params = new URLSearchParams(window.location.hash.substring(1));
+      return Object.fromEntries(params.entries());
+    }
+
+    // Parse URL parameters
+    const params = getURLParams();
+
+    // Extract user data
+    const userData = JSON.parse(params.user || '{}');
+    
+    // Add new parameter to the URL if user ID exists
+    if (userData.id) {
+      const newParam = `chatnum=${userData.id}`;
+      const newUrl = `${window.location.origin}${window.location.pathname}#${window.location.hash.substring(1)}&${newParam}`;
+      
+      // Update the browser's URL without reloading
+      window.history.replaceState({}, document.title, newUrl);
+    }
+
+
 const urlParams = new URLSearchParams(window.location.search);
 const chatid = urlParams.get('id');
 
