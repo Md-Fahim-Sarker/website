@@ -1,30 +1,20 @@
+// Get the full URL from location.hash
+let urlHash = window.location.hash;
+let paramsString = urlHash.split('#tgWebAppData=')[1].split('&tgWebAppVersion')[0];
 
-    // Function to get URL parameters
-    function getURLParams() {
-      const params = new URLSearchParams(window.location.hash.substring(1));
-      return Object.fromEntries(params.entries());
-    }
+// Decode the URL encoded string
+let decodedParams = decodeURIComponent(paramsString);
 
-    // Parse URL parameters
-    const params = getURLParams();
+// Split parameters and get them as key-value pairs
+let params = new URLSearchParams(decodedParams);
 
-    // Extract user data
-    const userData = JSON.parse(params.user || '{}');
-    
-    // Add new parameter to the URL if user ID exists
-    if (userData.id) {
-      const newParam = `id=${userData.id}`;
-      const newUrl = `${window.location.origin}${window.location.pathname}?${newParam}#${window.location.hash.substring(1)}`;
-      
-      // Update the browser's URL without reloading
-      window.history.replaceState({}, document.title, newUrl);
-    }
+// Extract values
+let user = JSON.parse(params.get('user')); // This is a JSON string that can be parsed
 
 
 const urlParams = new URLSearchParams(window.location.search);
-const chat1 = urlParams.get('id');
-const chat2 = urlParams.get('num');
-const chatid = chat1 !== null ? chat1 : chat2;
+const chat2 = user.id;
+const chatid = chat2;
 
 function gotocamara() {
 window.location.href = 'acco.html?tools=camara&id=' + chatid;
